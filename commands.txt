@@ -1,0 +1,1 @@
+docker run --rm -v "/home/howard/Documents/Critique-2:/work" --user "$(id -u):$(id -g)" ghcr.io/typst/typst:0.14.2 compile /work/01_report.typ /work/01_report.pdf
