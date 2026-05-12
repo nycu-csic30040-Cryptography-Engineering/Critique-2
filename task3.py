@@ -12,16 +12,14 @@ from utils.merkle_utils import (
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Task3: Efficient Node Replacement.")
-    parser.add_argument("--input", default="test_128mb.bin", help="Original 128MB file")
-    parser.add_argument("--replacement", default="test_1mb.bin", help="1MB replacement block")
-    parser.add_argument("--index", type=int, required=True, help="Block index to replace (0~127)")
+    parser.add_argument("index", type=int, help="Block index to replace (0~127)")
     args = parser.parse_args()
 
     if not (0 <= args.index < 128):
         raise ValueError("Block index must be in range 0~127")
 
-    original_blocks = split_into_blocks(read_binary_file(args.input))
-    replacement_block = read_binary_file(args.replacement)
+    original_blocks = split_into_blocks(read_binary_file("test_128mb.bin"))
+    replacement_block = read_binary_file("test_1mb.bin")
     if len(replacement_block) != 1024 * 1024:
         raise ValueError("Replacement block must be exactly 1MB")
 
