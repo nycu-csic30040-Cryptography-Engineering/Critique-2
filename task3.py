@@ -1,6 +1,5 @@
-import argparse
 import time
-from typing import List, Sequence, Tuple
+from typing import List
 
 from task1 import (
     build_merkle_tree_from_blocks,

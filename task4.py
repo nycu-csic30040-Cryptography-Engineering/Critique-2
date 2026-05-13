@@ -1,5 +1,5 @@
 import argparse
-from typing import List, Sequence, Tuple
+from typing import Sequence
 
 from task1 import (
     BLOCK_SIZE,
