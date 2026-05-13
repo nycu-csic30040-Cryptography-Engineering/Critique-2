@@ -44,7 +44,6 @@
 )
 
 = Implementation Report: Dynamic Merkle Tree System
-
 == Overview
 
 This report documents the design and evaluation of a Dynamic Merkle Tree system for a 128 MB dataset divided into $n = 2^7 = 128$ blocks of 1 MB each. Four implementation tasks were completed:
@@ -83,7 +82,7 @@ Initial construction time is nearly identical for both methods (≈ 0.054 s) bec
 
 === Method
 
-A corrupted Merkle Tree was built from `test_128mb_corrupted.bin`. The `locate_error_path()` function compared the two trees top-down: at each level it inspected both children and descended only into the subtree whose hash differed from the trusted reference. The number of comparisons was recorded.
+A corrupted Merkle Tree was built from `test_128mb_corrupted.bin`. The `locate_error()` function compared the two trees top-down: at each level it inspected both children and descended only into the subtree whose hash differed from the trusted reference. The number of comparisons was recorded.
 
 === Results
 
@@ -109,10 +108,10 @@ The correctness of the algorithm follows from the commitment property of Merkle 
 
 === Method
 
-Block 0 of the original file was replaced with `test_1mb.bin`. Two methods recomputed the Merkle root: (1) *path update* (`replace_node()`), which hashed the new block and propagated the change up the 7-node path to the root; (2) *full reconstruction*, which rebuilt the entire tree from all 128 blocks. Both were timed independently and their roots were compared for equality.
+Block (index based on user input) of the original file was replaced with `test_1mb.bin`. Two methods recomputed the Merkle root: (1) *path update* (`replace_node()`), which hashed the new block and propagated the change up the 7-node path to the root; (2) *full reconstruction*, which rebuilt the entire tree from all 128 blocks. Both were timed independently and their roots were compared for equality.
 
 === Results
-
+1. block index = 0
 #output-block[
 ```
 Task 3 - Efficient Node Replacement
@@ -125,18 +124,34 @@ Full reconstruction time:          0.053678 s
 Speedup factor (full/path):        125.74×
 ```
 ]
-
+2. block index = 114
+#output-block[
+```
+Task 3 - Efficient Node Replacement
+Original Merkle root:              3cd74d8d7171cce47fb900a1aca739b74286b6f84e5da9490f54559dbecc8668
+Updated root (replace_node):       b535fd2dad83144dfb643edb263f76fe32c1824daf4f20238bdfda4a8769b909
+Updated root (full reconstruction): b535fd2dad83144dfb643edb263f76fe32c1824daf4f20238bdfda4a8769b909
+Roots identical:                   True
+replace_node() time:               0.000511 s
+Full reconstruction time:          0.057104 s
+Speedup factor (full/path):        111.85×
+```
+]
 === Discussion
 
-The path update is *125.74× faster* than full reconstruction. The path update performs $O(log n) = 7$ hash operations on 32-byte values, while full reconstruction hashes all 128 blocks of 1 MB each. Both methods produce the identical root, verifying correctness.
+The path update is *125.74× faster* than full reconstruction when replacing Block 0 and is *111.85× faster* when replacing Block 114. The path update performs $O(log n) = 7$ hash operations on 32-byte values, while full reconstruction hashes all 128 blocks of 1 MB each. Both methods produce the identical root, verifying correctness.
 
-The speedup scales with $n$: for $n = 2^{20}$ blocks the path update would still need only 20 operations while full reconstruction would require over one million.
+The speedup scales with $n$: for $n = 2^20$ blocks the path update would still need only 20 operations while full reconstruction would require over one million.
 
 == Task 4 — Advanced Self-Healing
 
 === Method
 
-Given only the corrupted file, the trusted Merkle Tree, and 64 parity blocks (where $P_i = D_(2i) xor D_(2i+1)$), the system: (1) located the corrupted block using `locate_error_path()`; (2) identified the parity group and sibling block; (3) recovered the original block via $D_"corrupted" = P_(floor(i\/2)) xor D_"sibling"$; and (4) updated the Merkle path with `replace_node()` and verified the repaired root.
+Given only the corrupted file, the trusted Merkle Tree, and 64 parity blocks (where $P_i = D_(2i) xor D_(2i+1)$), the system:\ 
+(1) located the corrupted block using `locate_error_path()`\
+(2) identified the parity group and sibling block\ 
+(3) recovered the original block via $D_"corrupted" = P_(floor(i\/2)) xor D_"sibling"$\ 
+(4) updated the Merkle path with `replace_node()` and verified the repaired root\
 
 === Results
 
