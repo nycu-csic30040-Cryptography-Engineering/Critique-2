@@ -1,2 +1,7 @@
 Task 1–4: Functions should be implemented directly in the task files, and function names must follow the spec.
 Task 4: The demonstration description is unclear. Please explain the logic behind your implementation in the report.
+Task 3: Original Merkle root and Updated root value are same:
+    Original Merkle root:              3cd74d8d7171cce47fb900a1aca739b74286b6f84e5da9490f54559dbecc8668
+    Updated root (replace_node):       3cd74d8d7171cce47fb900a1aca739b74286b6f84e5da9490f54559dbecc8668
+    Updated root (full reconstruction): 3cd74d8d7171cce47fb900a1aca739b74286b6f84e5da9490f54559dbecc8668
+
