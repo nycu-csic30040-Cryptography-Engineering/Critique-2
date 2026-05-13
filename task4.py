@@ -1,22 +1,42 @@
 import argparse
+from typing import List, Sequence, Tuple
 
-from utils.merkle_utils import (
+from task1 import (
     BLOCK_SIZE,
     NUM_BLOCKS,
     build_merkle_tree_from_blocks,
-    locate_error_path,
     merkle_root,
     parse_trusted_tree_bytes,
     read_binary_file,
-    replace_node_path_update,
     split_into_blocks,
 )
-from utils.parity_utils import (
-    parity_block_index_for_data_block,
-    read_parity_blocks,
-    recover_block,
-    sibling_index,
-)
+from task2 import locate_error
+from task3 import replace_node
+
+# parity utils
+def xor_blocks(block_a: bytes, block_b: bytes) -> bytes:
+    return bytes(a ^ b for a, b in zip(block_a, block_b))
+
+
+def recover_block(parity_block: bytes, sibling_block: bytes) -> bytes:
+    return xor_blocks(parity_block, sibling_block)
+
+
+def parity_block_index_for_data_block(block_index: int) -> int:
+    return block_index // 2
+
+
+def sibling_index(block_index: int) -> int:
+    if block_index % 2 == 0:
+        return block_index + 1
+    return block_index - 1
+
+
+def read_parity_blocks(raw: bytes, block_size: int, num_parity_blocks: int) -> Sequence[bytes]:
+    expected = block_size * num_parity_blocks
+    if len(raw) != expected:
+        raise ValueError(f"parity_blocks.bin size mismatch: expected {expected}, got {len(raw)}")
+    return [raw[i * block_size : (i + 1) * block_size] for i in range(num_parity_blocks)]
 
 
 def main() -> None:
@@ -30,7 +50,7 @@ def main() -> None:
     corrupted_blocks = split_into_blocks(read_binary_file(args.corrupted))
     corrupted_tree = build_merkle_tree_from_blocks(corrupted_blocks)
 
-    corrupted_index, comparison_count = locate_error_path(trusted_tree, corrupted_tree)
+    corrupted_index, comparison_count = locate_error(trusted_tree, corrupted_tree)
     parity_index = parity_block_index_for_data_block(corrupted_index)
     sib_index = sibling_index(corrupted_index)
 
@@ -40,7 +60,7 @@ def main() -> None:
     repaired_block = recover_block(parity_blocks[parity_index], corrupted_blocks[sib_index])
 
     repaired_tree = [list(level) for level in corrupted_tree]
-    repaired_root = replace_node_path_update(repaired_tree, corrupted_index, repaired_block)
+    repaired_root = replace_node(repaired_tree, corrupted_index, repaired_block)
 
     print("Task 4 - Advanced Self-Healing")
     print(f"Trusted Merkle root: {merkle_root(trusted_tree).hex()}")

@@ -1,14 +1,26 @@
 import argparse
 import time
+from typing import List, Sequence, Tuple
 
-from utils.merkle_utils import (
+from task1 import (
     build_merkle_tree_from_blocks,
     merkle_root,
     read_binary_file,
-    replace_node_path_update,
     split_into_blocks,
+    sha256,
 )
 
+
+def replace_node(tree: List[List[bytes]], block_index: int, new_block: bytes) -> bytes:
+    tree[0][block_index] = sha256(new_block)
+    node = block_index
+    for level in range(1, len(tree)):
+        parent = node // 2
+        left = parent * 2
+        right = left + 1
+        tree[level][parent] = sha256(tree[level - 1][left] + tree[level - 1][right])
+        node = parent
+    return tree[-1][0]
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Task3: Efficient Node Replacement.")
@@ -31,7 +43,7 @@ def main() -> None:
     tree_for_path = [list(level) for level in base_tree]
 
     t_path_0 = time.perf_counter()
-    path_root = replace_node_path_update(tree_for_path, args.index, replacement_block)
+    path_root = replace_node(tree_for_path, args.index, replacement_block)
     path_elapsed = time.perf_counter() - t_path_0
 
     t_full_0 = time.perf_counter()
