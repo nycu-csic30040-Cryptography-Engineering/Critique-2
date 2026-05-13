@@ -204,10 +204,6 @@ This constitutes a complete integrity-and-recovery pipeline: $O(log n)$ detectio
       [32 B (root only)],
       [$7 times 32 = 224$ B],
       [Enables auditing],
-    [Internal Storage],
-      [0 B overhead],
-      [4064 B (127 nodes)],
-      [Modest cost],
   ),
   caption: [Performance and capability comparison for $n = 2^7 = 128$ blocks.],
 )
