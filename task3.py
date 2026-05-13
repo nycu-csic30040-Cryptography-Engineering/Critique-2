@@ -23,11 +23,17 @@ def replace_node(tree: List[List[bytes]], block_index: int, new_block: bytes) ->
     return tree[-1][0]
 
 def main() -> None:
+    """
     parser = argparse.ArgumentParser(description="Task3: Efficient Node Replacement.")
     parser.add_argument("index", type=int, help="Block index to replace (0~127)")
     args = parser.parse_args()
+    """
+    print("Task 3 - Efficient Node Replacement")
+    print("Which block will be replaced?")
+    index = int(input("Enter block index (range: 0-127):"))
 
-    if not (0 <= args.index < 128):
+
+    if not (0 <= index < 128):
         raise ValueError("Block index must be in range 0~127")
 
     original_blocks = split_into_blocks(read_binary_file("test_128mb.bin"))
@@ -39,11 +45,11 @@ def main() -> None:
     original_root = merkle_root(base_tree)
 
     blocks_for_path = list(original_blocks)
-    blocks_for_path[args.index] = replacement_block
+    blocks_for_path[index] = replacement_block
     tree_for_path = [list(level) for level in base_tree]
 
     t_path_0 = time.perf_counter()
-    path_root = replace_node(tree_for_path, args.index, replacement_block)
+    path_root = replace_node(tree_for_path, index, replacement_block)
     path_elapsed = time.perf_counter() - t_path_0
 
     t_full_0 = time.perf_counter()
@@ -52,7 +58,7 @@ def main() -> None:
 
     speedup = full_elapsed / path_elapsed if path_elapsed > 0 else float("inf")
 
-    print("Task 3 - Efficient Node Replacement")
+    print("")
     print(f"Original Merkle root: {original_root.hex()}")
     print(f"Updated root (replace_node path update): {path_root.hex()}")
     print(f"Updated root (full reconstruction): {full_root.hex()}")
